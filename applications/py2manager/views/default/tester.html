@@ -1,0 +1,21 @@
+<!--#tester.html-->
+{{extend 'layout.html'}}
+<html>
+	<body>
+		{{numbers=[1,2,3]}}
+		<ul>
+			{{for n in numbers:}}<li>{{=n}}</li>{{pass}}
+		</ul>
+
+		{{import random}}
+		{{str_list=['a','b','c','d','e','f']}}
+		<ul>
+			{{for i in range(5):}}
+			{{rand_num=random.randint(0,len(str_list))-1}}
+			<li>{{=str_list[rand_num]}}</li>
+			{{pass}}
+
+		</ul>
+
+	</body>
+</html>

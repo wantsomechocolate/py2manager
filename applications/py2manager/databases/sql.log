@@ -1,0 +1,811 @@
+timestamp: 2014-07-12T23:58:18.242322
+CREATE TABLE auth_user(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name CHAR(128),
+    last_name CHAR(128),
+    email CHAR(512),
+    password CHAR(512),
+    registration_key CHAR(512),
+    reset_password_key CHAR(512),
+    registration_id CHAR(512)
+);
+success!
+timestamp: 2014-07-12T23:58:18.356338
+CREATE TABLE auth_group(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2014-07-12T23:58:18.457854
+CREATE TABLE auth_membership(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2014-07-12T23:58:18.558269
+CREATE TABLE auth_permission(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name CHAR(512),
+    table_name CHAR(512),
+    record_id INTEGER
+);
+success!
+timestamp: 2014-07-12T23:58:18.677463
+CREATE TABLE auth_event(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time_stamp TIMESTAMP,
+    client_ip CHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    origin CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2014-07-12T23:58:18.803290
+CREATE TABLE auth_cas(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service CHAR(512),
+    ticket CHAR(512),
+    renew CHAR(1)
+);
+success!
+timestamp: 2014-07-12T23:58:18.929445
+CREATE TABLE company(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_name CHAR(512) NOT NULL UNIQUE,
+    email CHAR(512),
+    phone CHAR(512) NOT NULL,
+    url CHAR(512)
+);
+success!
+timestamp: 2014-07-12T23:58:19.072639
+CREATE TABLE project(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    employee_name INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    company_name INTEGER REFERENCES company (id) ON DELETE CASCADE,
+    description TEXT NOT NULL,
+    start_date DATE NOT NULL,
+    due_date DATE NOT NULL,
+    completed CHAR(1) NOT NULL
+);
+success!
+timestamp: 2014-07-13T10:03:41.132383
+ALTER TABLE auth_user ADD city CHAR(512);
+timestamp: 2014-07-13T10:03:41.289125
+ALTER TABLE auth_user ADD zip CHAR(512);
+timestamp: 2014-07-13T10:03:41.404940
+ALTER TABLE auth_user ADD image CHAR(512);
+timestamp: 2014-07-13T10:03:41.526626
+ALTER TABLE auth_user ADD address CHAR(512);
+success!
+timestamp: 2014-07-14T00:57:31.569216
+CREATE TABLE note(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER REFERENCES project (id) ON DELETE CASCADE,
+    post TEXT NOT NULL,
+    created_on TIMESTAMP,
+    created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2014-07-14T08:55:17.715496
+ALTER TABLE auth_user ADD username CHAR(128);
+timestamp: 2014-07-14T08:55:18.015671
+ALTER TABLE auth_user ADD modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE;
+timestamp: 2014-07-14T08:55:18.165623
+ALTER TABLE auth_user ADD is_active CHAR(1);
+timestamp: 2014-07-14T08:55:18.307942
+ALTER TABLE auth_user ADD created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE;
+timestamp: 2014-07-14T08:55:18.434500
+ALTER TABLE auth_user ADD created_on TIMESTAMP;
+timestamp: 2014-07-14T08:55:18.568279
+ALTER TABLE auth_user ADD modified_on TIMESTAMP;
+success!
+timestamp: 2014-07-14T08:55:18.690192
+ALTER TABLE auth_group ADD modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE;
+timestamp: 2014-07-14T08:55:18.836220
+ALTER TABLE auth_group ADD is_active CHAR(1);
+timestamp: 2014-07-14T08:55:18.972610
+ALTER TABLE auth_group ADD created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE;
+timestamp: 2014-07-14T08:55:19.115316
+ALTER TABLE auth_group ADD created_on TIMESTAMP;
+timestamp: 2014-07-14T08:55:19.258233
+ALTER TABLE auth_group ADD modified_on TIMESTAMP;
+success!
+timestamp: 2014-07-14T08:55:19.403806
+ALTER TABLE auth_membership ADD is_active CHAR(1);
+timestamp: 2014-07-14T08:55:19.518374
+ALTER TABLE auth_membership ADD created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE;
+timestamp: 2014-07-14T08:55:19.619346
+ALTER TABLE auth_membership ADD created_on TIMESTAMP;
+timestamp: 2014-07-14T08:55:19.728574
+ALTER TABLE auth_membership ADD modified_on TIMESTAMP;
+timestamp: 2014-07-14T08:55:19.837801
+ALTER TABLE auth_membership ADD modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE;
+success!
+timestamp: 2014-07-14T08:55:19.951486
+ALTER TABLE auth_permission ADD modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE;
+timestamp: 2014-07-14T08:55:20.100556
+ALTER TABLE auth_permission ADD is_active CHAR(1);
+timestamp: 2014-07-14T08:55:20.209155
+ALTER TABLE auth_permission ADD created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE;
+timestamp: 2014-07-14T08:55:20.327006
+ALTER TABLE auth_permission ADD created_on TIMESTAMP;
+timestamp: 2014-07-14T08:55:20.436355
+ALTER TABLE auth_permission ADD modified_on TIMESTAMP;
+success!
+timestamp: 2014-07-15T10:20:38.114406
+CREATE TABLE costunits(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512),
+    to_USD CHAR(512)
+);
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+timestamp: 2014-07-15T10:23:38.250986
+CREATE TABLE cost_units(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    to_USD CHAR(512) NOT NULL
+);
+success!
+timestamp: 2014-07-15T10:25:41.077352
+CREATE TABLE energy_units(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    unit TEXT NOT NULL UNIQUE,
+    to_btu DOUBLE NOT NULL
+);
+success!
+timestamp: 2014-07-15T10:28:48.951958
+CREATE TABLE building(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL UNIQUE,
+    area DOUBLE NOT NULL
+);
+success!
+timestamp: 2014-07-15T10:30:59.120131
+CREATE TABLE electric_bb(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_name INTEGER REFERENCES company (id) ON DELETE CASCADE,
+    building_name INTEGER REFERENCES building (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2014-07-15T10:31:07.419442
+ALTER TABLE electric_bb ADD reporting_year CHAR(512) NOT NULL;
+timestamp: 2014-07-15T10:31:27.678904
+ALTER TABLE electric_bb ADD reporting_year INTEGER NOT NULL;
+timestamp: 2014-07-15T10:31:42.157223
+ALTER TABLE electric_bb ADD reporting_year DOUBLE NOT NULL;
+timestamp: 2014-07-15T19:39:04.473352
+ALTER TABLE building ADD building_area DOUBLE NOT NULL;
+timestamp: 2014-07-15T19:39:50.829044
+ALTER TABLE building ADD building_area DOUBLE NOT NULL;
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+timestamp: 2014-07-15T19:44:47.957266
+ALTER TABLE building ADD building_area DOUBLE NOT NULL;
+success!
+timestamp: 2014-07-15T19:45:29.738577
+ALTER TABLE building ADD building_area DOUBLE NOT NULL;
+success!
+timestamp: 2014-07-15T19:45:49.205637
+ALTER TABLE building ADD building_name CHAR(512) NOT NULL UNIQUE;
+success!
+timestamp: 2014-07-15T19:46:09.075995
+CREATE TABLE buildings(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    building_name CHAR(512) NOT NULL UNIQUE,
+    building_area DOUBLE NOT NULL
+);
+success!
+success!
+timestamp: 2014-07-15T19:48:09.373716
+CREATE TABLE electric(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_name INTEGER REFERENCES company (id) ON DELETE CASCADE,
+    building_name INTEGER REFERENCES buildings (id) ON DELETE CASCADE
+);
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+timestamp: 2014-07-15T19:58:07.791230
+ALTER TABLE electric ADD total_base_building_usage CHAR(512);
+timestamp: 2014-07-15T19:58:07.936673
+ALTER TABLE electric ADD total_tenant_submeter_usage CHAR(512);
+timestamp: 2014-07-15T19:58:08.064143
+ALTER TABLE electric ADD total_tenant_direct_usage_units INTEGER REFERENCES energy_units (id) ON DELETE CASCADE;
+timestamp: 2014-07-15T19:58:08.206593
+ALTER TABLE electric ADD total_tenant_submeter_cost_units INTEGER REFERENCES cost_units (id) ON DELETE CASCADE;
+timestamp: 2014-07-15T19:58:08.349454
+ALTER TABLE electric ADD total_tenant_submeter_cost DOUBLE;
+timestamp: 2014-07-15T19:58:08.492011
+ALTER TABLE electric ADD total_base_building_cost DOUBLE;
+timestamp: 2014-07-15T19:58:08.625905
+ALTER TABLE electric ADD total_base_building_usage_units INTEGER REFERENCES energy_units (id) ON DELETE CASCADE;
+timestamp: 2014-07-15T19:58:08.760132
+ALTER TABLE electric ADD total_tenant_submeter_usage_units INTEGER REFERENCES energy_units (id) ON DELETE CASCADE;
+timestamp: 2014-07-15T19:58:08.885993
+ALTER TABLE electric ADD total_tenant_direct_cost DOUBLE;
+timestamp: 2014-07-15T19:58:09.020168
+ALTER TABLE electric ADD reporting_year DOUBLE NOT NULL;
+success!
+timestamp: 2014-07-15T19:58:17.178789
+ALTER TABLE electric ADD reporting_year DOUBLE NOT NULL;
+success!
+success!
+timestamp: 2014-07-15T19:59:43.216602
+ALTER TABLE electric ADD reporting_year DOUBLE NOT NULL;
+success!
+timestamp: 2014-07-15T19:59:54.050772
+ALTER TABLE electric ADD report_year DOUBLE NOT NULL;
+success!
+timestamp: 2014-07-15T20:00:16.460057
+ALTER TABLE electric ADD report_year DOUBLE NOT NULL;
+success!
+timestamp: 2014-07-15T20:00:30.263840
+ALTER TABLE electric ADD total_base_building_usage CHAR(512);
+success!
+success!
+timestamp: 2014-07-15T20:01:08.140758
+CREATE TABLE electric_test(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_name INTEGER REFERENCES company (id) ON DELETE CASCADE,
+    building_name INTEGER REFERENCES buildings (id) ON DELETE CASCADE,
+    reporting_year DOUBLE NOT NULL,
+    total_base_building_usage CHAR(512)
+);
+success!
+success!
+timestamp: 2014-07-15T20:01:16.432027
+ALTER TABLE electric_test ADD total_base_building_usage_units INTEGER REFERENCES energy_units (id) ON DELETE CASCADE;
+success!
+success!
+timestamp: 2014-07-15T20:01:29.799635
+ALTER TABLE electric_test ADD total_base_building_cost DOUBLE;
+timestamp: 2014-07-15T20:01:29.944265
+ALTER TABLE electric_test ADD total_base_building_cost_units INTEGER REFERENCES cost_units (id) ON DELETE CASCADE;
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+timestamp: 2014-07-15T20:03:25.096122
+ALTER TABLE electric_test ADD total_tenant_submeter_usage CHAR(512);
+success!
+success!
+timestamp: 2014-07-15T20:03:41.831260
+ALTER TABLE electric_test ADD total_tenant_direct_usage_units INTEGER REFERENCES energy_units (id) ON DELETE CASCADE;
+timestamp: 2014-07-15T20:03:41.983756
+ALTER TABLE electric_test ADD total_tenant_submeter_cost_units INTEGER REFERENCES cost_units (id) ON DELETE CASCADE;
+timestamp: 2014-07-15T20:03:42.134771
+ALTER TABLE electric_test ADD total_tenant_submeter_cost DOUBLE;
+timestamp: 2014-07-15T20:03:42.269980
+ALTER TABLE electric_test ADD total_tenant_submeter_usage_units INTEGER REFERENCES energy_units (id) ON DELETE CASCADE;
+timestamp: 2014-07-15T20:03:42.455115
+ALTER TABLE electric_test ADD total_tenant_direct_cost DOUBLE;
+timestamp: 2014-07-15T20:03:42.609173
+ALTER TABLE electric_test ADD total_tenant_direct_usage CHAR(512);
+timestamp: 2014-07-15T20:03:42.757041
+ALTER TABLE electric_test ADD total_tenant_direct_cost_units INTEGER REFERENCES cost_units (id) ON DELETE CASCADE;
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+timestamp: 2014-07-18T07:37:43.364734
+CREATE TABLE area_units(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    area_unit CHAR(512) NOT NULL UNIQUE,
+    to_SF DOUBLE NOT NULL
+);
+success!
+timestamp: 2014-07-18T07:37:43.615661
+ALTER TABLE electric_test ADD total_tenant_direct_area CHAR(512);
+timestamp: 2014-07-18T07:37:43.768117
+ALTER TABLE electric_test ADD total_base_building_area CHAR(512);
+timestamp: 2014-07-18T07:37:43.916957
+ALTER TABLE electric_test ADD total_tenant_submeter_area CHAR(512);
+success!
+success!
+success!
+success!
+success!
+timestamp: 2014-07-18T07:48:04.179752
+ALTER TABLE buildings ADD sell_date DATE;
+timestamp: 2014-07-18T07:48:04.336632
+ALTER TABLE buildings ADD purchase_date DATE;
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+timestamp: 2014-07-18T18:42:14.708306
+CREATE TABLE auth_user_archive(
+    current_record INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name CHAR(128),
+    last_name CHAR(128),
+    email CHAR(512),
+    username CHAR(128),
+    password CHAR(512),
+    registration_key CHAR(512),
+    reset_password_key CHAR(512),
+    registration_id CHAR(512),
+    address CHAR(512),
+    city CHAR(512),
+    zip CHAR(512),
+    image CHAR(512),
+    is_active CHAR(1),
+    created_on TIMESTAMP,
+    created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    modified_on TIMESTAMP,
+    modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2014-07-18T18:42:15.030148
+CREATE TABLE auth_group_archive(
+    current_record INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role CHAR(512),
+    description TEXT,
+    is_active CHAR(1),
+    created_on TIMESTAMP,
+    created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    modified_on TIMESTAMP,
+    modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2014-07-18T18:42:15.189286
+CREATE TABLE auth_membership_archive(
+    current_record INTEGER REFERENCES auth_membership (id) ON DELETE CASCADE,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    is_active CHAR(1),
+    created_on TIMESTAMP,
+    created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    modified_on TIMESTAMP,
+    modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2014-07-18T18:42:15.348882
+CREATE TABLE auth_permission_archive(
+    current_record INTEGER REFERENCES auth_permission (id) ON DELETE CASCADE,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name CHAR(512),
+    table_name CHAR(512),
+    record_id INTEGER,
+    is_active CHAR(1),
+    created_on TIMESTAMP,
+    created_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    modified_on TIMESTAMP,
+    modified_by INTEGER REFERENCES auth_user (id) ON DELETE CASCADE
+);
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+timestamp: 2014-07-18T20:19:16.963039
+ALTER TABLE auth_user ADD company CHAR(512);
+success!
+timestamp: 2014-07-18T20:19:17.104196
+ALTER TABLE auth_user_archive ADD company CHAR(512);
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!

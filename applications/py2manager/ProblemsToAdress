@@ -1,0 +1,7 @@
+Why are only auth tables versioned?
+How can I version a table that I make?
+multi column uniqueness
+Have some inputs affect others (ajax?)
+Give argument to sql grid so that it only shows companies from the current user's groups
+
+Calculated columns?

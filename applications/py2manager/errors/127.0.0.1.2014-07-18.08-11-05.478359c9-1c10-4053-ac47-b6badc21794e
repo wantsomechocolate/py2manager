@@ -1,0 +1,783 @@
+(dp1
+S'output'
+p2
+S"<type 'exceptions.TypeError'> __init__() got an unexpected keyword argument 'editable'"
+p3
+sS'layer'
+p4
+S'/home/wantsomechocolate/Code/py2manager/applications/py2manager/models/db_tasks.py'
+p5
+sS'code'
+p6
+S"db.define_table('company',\n\tField('company_name', notnull=True, unique=True),\n\tField('email'),\n\tField('phone', notnull=True),\n\tField('url'),\n\tformat = '%(company_name)s'\n\t)\n\ndb.company.email.requires=IS_EMAIL()\ndb.company.url.requires=IS_EMPTY_OR(IS_URL())\n\ndb.define_table('project',\n\tField('name', notnull=True),\n\tField('employee_name', db.auth_user, default=auth.user_id),\n\tField('company_name', 'reference company', notnull=True),\n\tField('description', 'text', notnull=True),\n\tField('start_date', 'date', notnull=True),\n\tField('due_date', 'date', notnull=True),\n\tField('completed', 'boolean', notnull=True),\n\tformat = '%(company_name)s'\n\t)\n\ndb.project.employee_name.readable = db.project.employee_name.writable = False\n\ndb.project.start_date.requires = IS_DATE(format=T('%m-%d-%Y'),\n\terror_message='Must be MM-DD-YYYY!')\n\ndb.project.due_date.requires =IS_DATE(format=T('%m-%d-%Y'),\n\terror_message='Must be MM-DD-YYYY!')\n\ndb.define_table('note',\n\tField('post_id', 'reference project', writable=False),\n\tField('post', 'text', notnull=True),\n\tField('created_on', 'datetime', default=request.now, writable=False),\n\tField('created_by', db.auth_user, default = auth.user_id)\n\t)\n\ndb.note.post_id.readable = db.note.post_id.writable=False\ndb.note.created_on.readable = db.note.created_on.writable=False\ndb.note.created_on.requires = IS_DATE(format=T('%m-%d-%Y'),\n\terror_message='Must be MM-DD-YYYY!')\ndb.note.created_by.readable = db.note.created_by.writable=False\n\n\ndb.define_table('cost_units',\n\tField('name', notnull=True, unique=True),\n\tField('to_USD', notnull=True),\n\tformat = '%(name)s'\n\t)\n\ndb.define_table('energy_units',\n\tField('unit',notnull=True, unique=True),\n\tField('to_btu','float',notnull=True),\n\tformat = '%(unit)s'\n\t)\n\ndb.define_table('area_units',\n\tField('area_unit',notnull=True, unique = True),\n\tField('to_SF','float', notnull=True),\n\tformat = '%(area_unit)s'\n\t)\n\n## - Building Information\ndb.define_table('buildings',\n\tField('building_name', notnull=True, unique=True),\n\tField('building_area', 'float', notnull=True),\n\tField('purchase_date', 'date', editable=False),\n\tField('sell_date','date'),\n\tformat = '%(building_name)s'\n\t)\n\ndb.buildings.purchase_date.requires=IS_DATE(format=T('%m-%d-%Y'),\n\terror_message='Must by MM-DD-YYYY!')\ndb.buildings.sell_date.requires=IS_EMPTY_OR(IS_DATE(format=T('%m-%d-%Y'),\n\terror_message='Must by MM-DD-YYYY!'))\n\n##-Electric Table Fields\n\ndb.define_table('electric_test',\n\tField('company_name', 'reference company', notnull=True),\n\n\tField('building_name','reference buildings',notnull=True),\n\t\n\tField('reporting_year', 'integer', notnull=True),\n\n\tField('total_base_building_usage'),\n\tField('total_base_building_usage_units'),\n\tField('total_base_building_cost'),\n\tField('total_base_building_cost_units'),\n\tField('total_base_building_area'),\n\n\tField('total_tenant_submeter_usage'),\n\tField('total_tenant_submeter_usage_units','reference energy_units'),\n\tField('total_tenant_submeter_cost','float'),\n\tField('total_tenant_submeter_cost_units', 'reference cost_units'),\n\tField('total_tenant_submeter_area'),\n\n\tField('total_tenant_direct_usage'),\n\tField('total_tenant_direct_usage_units','reference energy_units'),\n\tField('total_tenant_direct_cost','float'),\n\tField('total_tenant_direct_cost_units', 'reference cost_units'),\n\tField('total_tenant_direct_area'),\n\t#format = ['%(building_name)s','%(company_name)s']\n\t)\n\n##-- Electric Table requirements\ndb.electric_test.total_base_building_usage.requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0, 1e100))\ndb.electric_test.total_base_building_usage_units.requires=IS_EMPTY_OR(IS_IN_DB(db, 'energy_units.id', '%(unit)s'))\ndb.electric_test.total_base_building_cost.requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0, 1e100))\ndb.electric_test.total_base_building_cost_units.requires=IS_EMPTY_OR(IS_IN_DB(db, 'cost_units.id', '%(name)s'))\n\ndb.electric_test.total_tenant_submeter_usage.requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0, 1e100))\ndb.electric_test.total_tenant_submeter_usage_units.requires=IS_EMPTY_OR(IS_IN_DB(db, 'energy_units.id', '%(unit)s'))\ndb.electric_test.total_tenant_submeter_cost.requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0, 1e100))\ndb.electric_test.total_tenant_submeter_cost_units.requires=IS_EMPTY_OR(IS_IN_DB(db, 'cost_units.id', '%(name)s'))\n\ndb.electric_test.total_tenant_direct_usage.requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0, 1e100))\ndb.electric_test.total_tenant_direct_usage_units.requires=IS_EMPTY_OR(IS_IN_DB(db, 'energy_units.id','%(unit)s'))\ndb.electric_test.total_tenant_direct_cost.requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0, 1e100))\ndb.electric_test.total_tenant_direct_cost_units.requires=IS_EMPTY_OR(IS_IN_DB(db, 'cost_units.id', '%(name)s'))\n\n#db.electric_test.total_tenant_submeter_usage.requires=(db.electric_test.total_base_building_usage>db.electric_test.total_tenant_submeter_usage)\n\n"
+p7
+sS'snapshot'
+p8
+(dp9
+S'exception'
+p10
+(dp11
+S'__hash__'
+p12
+S"<method-wrapper '__hash__' of exceptions.TypeError object>"
+p13
+sS'__setattr__'
+p14
+S"<method-wrapper '__setattr__' of exceptions.TypeError object>"
+p15
+sS'__reduce_ex__'
+p16
+S'<built-in method __reduce_ex__ of exceptions.TypeError object>'
+p17
+sS'__getslice__'
+p18
+S"<method-wrapper '__getslice__' of exceptions.TypeError object>"
+p19
+sS'__getitem__'
+p20
+S"<method-wrapper '__getitem__' of exceptions.TypeError object>"
+p21
+sS'__setstate__'
+p22
+S'<built-in method __setstate__ of exceptions.TypeError object>'
+p23
+sS'args'
+p24
+S'("__init__() got an unexpected keyword argument \'editable\'",)'
+p25
+sS'__reduce__'
+p26
+S'<built-in method __reduce__ of exceptions.TypeError object>'
+p27
+sS'__str__'
+p28
+S"<method-wrapper '__str__' of exceptions.TypeError object>"
+p29
+sS'__format__'
+p30
+S'<built-in method __format__ of exceptions.TypeError object>'
+p31
+sS'__getattribute__'
+p32
+S"<method-wrapper '__getattribute__' of exceptions.TypeError object>"
+p33
+sS'__class__'
+p34
+S"<type 'exceptions.TypeError'>"
+p35
+sS'__unicode__'
+p36
+S'<built-in method __unicode__ of exceptions.TypeError object>'
+p37
+sS'__delattr__'
+p38
+S"<method-wrapper '__delattr__' of exceptions.TypeError object>"
+p39
+sS'__subclasshook__'
+p40
+S'<built-in method __subclasshook__ of type object>'
+p41
+sS'__repr__'
+p42
+S"<method-wrapper '__repr__' of exceptions.TypeError object>"
+p43
+sS'__dict__'
+p44
+S'{}'
+p45
+sS'__sizeof__'
+p46
+S'<built-in method __sizeof__ of exceptions.TypeError object>'
+p47
+sS'__doc__'
+p48
+S"'Inappropriate argument type.'"
+p49
+sS'__init__'
+p50
+S"<method-wrapper '__init__' of exceptions.TypeError object>"
+p51
+sS'__new__'
+p52
+S'<built-in method __new__ of type object>'
+p53
+ssS'evalue'
+p54
+S"__init__() got an unexpected keyword argument 'editable'"
+p55
+sS'request'
+p56
+cgluon.html
+XML_unpickle
+p57
+(S'sb\\\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">ajax</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">application</td><td style="vertical-align:top;">:</td><td><div>py2manager</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">args</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>edit</div></td></tr><tr><td><div>buildings</div></td></tr><tr><td><div>2</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cid</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">controller</td><td style="vertical-align:top;">:</td><td><div>default</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_admin</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-e77e9cbe-ba3c-41e4-8d54-47da6dde8682<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_py2manager</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-0e973a39-cf70-4544-bbdd-09f7d890b88b<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_web2blog</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-42d31259-476f-41e7-9983-df006f316c3e<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">env</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_ENCODING</td><td style="vertical-align:top;">:</td><td><div>gzip,deflate,sdch</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_LANGUAGE</td><td style="vertical-align:top;">:</td><td><div>en-US,en;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CACHE_CONTROL</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONNECTION</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_COOKIE</td><td style="vertical-align:top;">:</td><td><div>session_id_web2blog=127.0.0.1-42d31259-476f-41e7-9983-df006f316c3e; session_id_admin=127.0.0.1-e77e9cbe-ba3c-41e4-8d54-47da6dde8682; session_id_py2manager=127.0.0.1-0e973a39-cf70-4544-bbdd-09f7d890b88b</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_HOST</td><td style="vertical-align:top;">:</td><td><div>localhost:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_REFERER</td><td style="vertical-align:top;">:</td><td><div>http://localhost:8000/buildings</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_USER_AGENT</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/34.0.1847.116 Chrome/34.0.1847.116 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">PATH_INFO</td><td style="vertical-align:top;">:</td><td><div>/buildings/edit/buildings/2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">QUERY_STRING</td><td style="vertical-align:top;">:</td><td><div>_signature=953ab87bba63f28b041f9d2fb4f98c6f7650f4d2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_ADDR</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_PORT</td><td style="vertical-align:top;">:</td><td><div>37998</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REQUEST_METHOD</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SCRIPT_NAME</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_NAME</td><td style="vertical-align:top;">:</td><td><div>House</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PORT</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PROTOCOL</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_SOFTWARE</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/wantsomechocolate/Code/py2manager/applications/py2manager/&#x27;, &#x27;/home/wantsomechocolate/Code/py2manager/applications/admin/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/wantsomechocolate/Code/py2manager</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0x2d184d0: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;127.0.1.1&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;House&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/home/wantsomechocolate/Code/py2manager&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;scheduler_groups&#x27;: None, &#x27;password&#x27;: &#x27;asdfasdf&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/wantsomechocolate/Code/py2manager</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_encoding</td><td style="vertical-align:top;">:</td><td><div>gzip,deflate,sdch</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_language</td><td style="vertical-align:top;">:</td><td><div>en-US,en;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cache_control</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_connection</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cookie</td><td style="vertical-align:top;">:</td><td><div>session_id_web2blog=127.0.0.1-42d31259-476f-41e7-9983-df006f316c3e; session_id_admin=127.0.0.1-e77e9cbe-ba3c-41e4-8d54-47da6dde8682; session_id_py2manager=127.0.0.1-0e973a39-cf70-4544-bbdd-09f7d890b88b</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_host</td><td style="vertical-align:top;">:</td><td><div>localhost:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_referer</td><td style="vertical-align:top;">:</td><td><div>http://localhost:8000/buildings</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_user_agent</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/34.0.1847.116 Chrome/34.0.1847.116 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>House</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>127.0.1.1</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path_info</td><td style="vertical-align:top;">:</td><td><div>/buildings/edit/buildings/2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">query_string</td><td style="vertical-align:top;">:</td><td><div>_signature=953ab87bba63f28b041f9d2fb4f98c6f7650f4d2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_addr</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_port</td><td style="vertical-align:top;">:</td><td><div>37998</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_method</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_uri</td><td style="vertical-align:top;">:</td><td><div>/py2manager/default/buildings/edit/buildings/2?_signature=953ab87bba63f28b041f9d2fb4f98c6f7650f4d2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">script_name</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_name</td><td style="vertical-align:top;">:</td><td><div>House</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_port</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_protocol</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_software</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_original_uri</td><td style="vertical-align:top;">:</td><td><div>/buildings/edit/buildings/2?_signature=953ab87bba63f28b041f9d2fb4f98c6f7650f4d2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_path</td><td style="vertical-align:top;">:</td><td><div>/home/wantsomechocolate/Code/py2manager</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.5-stable+timestamp.2014.03.16.02.35.39</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x7f55970101e0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x2c8b8d8&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0x7f556820b2d0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x7f55970101e0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x2c8b8d8&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0x7f556820b2d0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">extension</td><td style="vertical-align:top;">:</td><td><div>html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">folder</td><td style="vertical-align:top;">:</td><td><div>/home/wantsomechocolate/Code/py2manager/applications/py2manager/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">function</td><td style="vertical-align:top;">:</td><td><div>buildings</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">global_settings</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/wantsomechocolate/Code/py2manager/applications/py2manager/&#x27;, &#x27;/home/wantsomechocolate/Code/py2manager/applications/admin/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/wantsomechocolate/Code/py2manager</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0x2d184d0: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;127.0.1.1&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;House&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/home/wantsomechocolate/Code/py2manager&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;scheduler_groups&#x27;: None, &#x27;password&#x27;: &#x27;asdfasdf&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/wantsomechocolate/Code/py2manager</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>House</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>127.0.1.1</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.5-stable+timestamp.2014.03.16.02.35.39</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_https</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_local</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_restful</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">now</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 7, 18, 8, 11, 5, 365957)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">url</td><td style="vertical-align:top;">:</td><td><div>/buildings/edit/buildings/2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">utcnow</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 7, 18, 12, 11, 5, 365980)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">uuid</td><td style="vertical-align:top;">:</td><td><div>py2manager/127.0.0.1.2014-07-18.08-11-05.478359c9-1c10-4053-ac47-b6badc21794e</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi</td><td style="vertical-align:top;">:</td><td><div>&lt;gluon.main.LazyWSGI object at 0x7f55681e2850&gt;</div></td></tr></table></div>'
+tRp58
+sS'frames'
+p59
+(lp60
+(dp61
+S'file'
+p62
+S'/home/wantsomechocolate/Code/py2manager/gluon/restricted.py'
+p63
+sS'dump'
+p64
+(dp65
+S'environment'
+p66
+S"{'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, 'CENTER': <class 'gluon.html.CENTER'>, ...}"
+p67
+sS'ccode'
+p68
+S'<code object <module> at 0x7f556820b230, file "/...lications/py2manager/models/db_tasks.py", line 1>'
+p69
+ssS'lnum'
+p70
+I220
+sS'lines'
+p71
+(dp72
+I224
+S'        # do not encapsulate (obfuscate) the original RestrictedError'
+p73
+sI215
+S'    try:'
+p74
+sI216
+S'        if isinstance(code, types.CodeType):'
+p75
+sI217
+S'            ccode = code'
+p76
+sI218
+S'        else:'
+p77
+sI219
+S'            ccode = compile2(code, layer)'
+p78
+sI220
+S'        exec ccode in environment'
+p79
+sI221
+S'    except HTTP:'
+p80
+sI222
+S'        raise'
+p81
+sI223
+S'    except RestrictedError:'
+p82
+ssS'call'
+p83
+S'(code="db.define_table(\'company\',\\n\\tField(\'company_name\'...e>db.electric_test.total_tenant_submeter_usage)\\n\\n", environment={\'A\': <class \'gluon.html.A\'>, \'ANY_OF\': <class \'gluon.validators.ANY_OF\'>, \'Auth\': <class \'gluon.tools.Auth\'>, \'B\': <class \'gluon.html.B\'>, \'BEAUTIFY\': <class \'gluon.html.BEAUTIFY\'>, \'BODY\': <class \'gluon.html.BODY\'>, \'BR\': <class \'gluon.html.BR\'>, \'BUTTON\': <class \'gluon.html.BUTTON\'>, \'CAT\': <class \'gluon.html.CAT\'>, \'CENTER\': <class \'gluon.html.CENTER\'>, ...}, layer=\'/home/wantsomechocolate/Code/py2manager/applications/py2manager/models/db_tasks.py\')'
+p84
+sS'func'
+p85
+S'restricted'
+p86
+sa(dp87
+g62
+S'/home/wantsomechocolate/Code/py2manager/applications/py2manager/models/db_tasks.py'
+p88
+sg64
+(dp89
+S'Field'
+p90
+S"<class 'gluon.dal.Field'>"
+p91
+sS'editable'
+p92
+S'undefined'
+p93
+sS'builtinFalse'
+p94
+S'False'
+p95
+ssg70
+I67
+sg71
+(dp96
+I64
+S"db.define_table('buildings',"
+p97
+sI65
+S"\tField('building_name', notnull=True, unique=True),"
+p98
+sI66
+S"\tField('building_area', 'float', notnull=True),"
+p99
+sI67
+S"\tField('purchase_date', 'date', editable=False),"
+p100
+sI68
+S"\tField('sell_date','date'),"
+p101
+sI69
+S"\tformat = '%(building_name)s'"
+p102
+sI70
+S'\t)'
+p103
+sI71
+S''
+sI62
+S''
+sI63
+S'## - Building Information'
+p104
+ssg83
+S'()'
+p105
+sg85
+S'<module>'
+p106
+sasS'pyver'
+p107
+S'Python 2.7.5+: /usr/bin/python (prefix: /usr)'
+p108
+sS'session'
+p109
+g57
+(S's\xc9\x0f\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">auth</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">expiration</td><td style="vertical-align:top;">:</td><td><div>3600</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">hmac_key</td><td style="vertical-align:top;">:</td><td><div>efd47ee4-4bf9-465f-bb5f-e82a0dbb9aa7</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_visit</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 7, 18, 8, 9, 14, 8340)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remember</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">user</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">address</td><td style="vertical-align:top;">:</td><td><div>363 Cranbury Rd. Apt D09</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">city</td><td style="vertical-align:top;">:</td><td><div>East Brunsiwck, NJ</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">created_by</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">created_on</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">email</td><td style="vertical-align:top;">:</td><td><div>wantsomechocolate@gmail.com</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">first_name</td><td style="vertical-align:top;">:</td><td><div>James</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">id</td><td style="vertical-align:top;">:</td><td><div>1L</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">image</td><td style="vertical-align:top;">:</td><td><div>auth_user.image.887b40bbc232f2e6.4a756479466163652e706e67.png</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_active</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_name</td><td style="vertical-align:top;">:</td><td><div>McGlynn</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">modified_by</td><td style="vertical-align:top;">:</td><td><div>1L</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">modified_on</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 7, 14, 8, 55, 46)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">registration_id</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">registration_key</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">reset_password_key</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">username</td><td style="vertical-align:top;">:</td><td><div>WantsomeChocolate</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">zip</td><td style="vertical-align:top;">:</td><td><div>08816</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">user_groups</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">1</td><td style="vertical-align:top;">:</td><td><div>user_1</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_orderby</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_query</td><td style="vertical-align:top;">:</td><td><div>db.buildings.id&gt;0</div></td></tr></table></div>'
+tRp110
+sS'etype'
+p111
+S"<type 'exceptions.TypeError'>"
+p112
+sS'date'
+p113
+S'Fri Jul 18 08:11:05 2014'
+p114
+sS'response'
+p115
+g57
+(S's\r\x17\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">body</td><td style="vertical-align:top;">:</td><td><div>&lt;cStringIO.StringO object at 0x7f5568208148&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_py2manager</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-0e973a39-cf70-4544-bbdd-09f7d890b88b<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div>/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">delimiters</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>{{</div></td></tr><tr><td><div>}}</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">files</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generic_patterns</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>*</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">headers</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">X-Powered-By</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">menu</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">meta</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">models_to_run</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>^\\w+\\.py$</div></td></tr><tr><td><div>^default/\\w+\\.py$</div></td></tr><tr><td><div>^default/buildings/\\w+\\.py$</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">postprocessing</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_compression_level</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_expires</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_key</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_data_name</td><td style="vertical-align:top;">:</td><td><div>session_data_py2manager</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_file</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;/home/wantsomechocolate/Code/py2manager/applications/py2manager/sessions/127.0.0.1-0e973a39-cf70-4544-bbdd-09f7d890b88b&#x27;, mode &#x27;rb+&#x27; at 0x7f55681e7a50&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_filename</td><td style="vertical-align:top;">:</td><td><div>/home/wantsomechocolate/Code/py2manager/applications/py2manager/sessions/127.0.0.1-0e973a39-cf70-4544-bbdd-09f7d890b88b</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_hash</td><td style="vertical-align:top;">:</td><td><div>40e6af63eaa90051c2a109496628f9b5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-0e973a39-cf70-4544-bbdd-09f7d890b88b</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_name</td><td style="vertical-align:top;">:</td><td><div>session_id_py2manager</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_locked</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_masterapp</td><td style="vertical-align:top;">:</td><td><div>py2manager</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_new</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_storage_type</td><td style="vertical-align:top;">:</td><td><div>file</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">status</td><td style="vertical-align:top;">:</td><td><div>200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">view</td><td style="vertical-align:top;">:</td><td><div>default/buildings.html</div></td></tr></table></div>'
+tRp116
+sS'locals'
+p117
+(dp118
+S'Service'
+p119
+S"<class 'gluon.tools.Service'>"
+p120
+sS'OBJECT'
+p121
+S"<class 'gluon.html.OBJECT'>"
+p122
+sS'SQLDB'
+p123
+S"<class 'gluon.dal.DAL'>"
+p124
+sg109
+S"<Storage {'last_query': 'db.buildings.id>0', '_f...58408', '82ed1391-8645-4e0f-a199-db120533a621']}>"
+p125
+sS'LINK'
+p126
+S"<class 'gluon.html.LINK'>"
+p127
+sS'BR'
+p128
+S"<class 'gluon.html.BR'>"
+p129
+sS'local_import'
+p130
+S'<function <lambda>>'
+p131
+sS'OPTGROUP'
+p132
+S"<class 'gluon.html.OPTGROUP'>"
+p133
+sS'LI'
+p134
+S"<class 'gluon.html.LI'>"
+p135
+sS'PRE'
+p136
+S"<class 'gluon.html.PRE'>"
+p137
+sS'IS_INT_IN_RANGE'
+p138
+S"<class 'gluon.validators.IS_INT_IN_RANGE'>"
+p139
+sS'IS_LOWER'
+p140
+S"<class 'gluon.validators.IS_LOWER'>"
+p141
+sS'IS_STRONG'
+p142
+S"<class 'gluon.validators.IS_STRONG'>"
+p143
+sS'cache'
+p144
+S'<gluon.cache.Cache object>'
+p145
+sS'IS_IN_DB'
+p146
+S"<class 'gluon.validators.IS_IN_DB'>"
+p147
+sS'TAG'
+p148
+S'<gluon.html.__TAG__ object>'
+p149
+sS'SQLField'
+p150
+S"<class 'gluon.dal.Field'>"
+p151
+sS'mail'
+p152
+S'<gluon.tools.Mail object>'
+p153
+sS'BODY'
+p154
+S"<class 'gluon.html.BODY'>"
+p155
+sS'IS_DATE_IN_RANGE'
+p156
+S"<class 'gluon.validators.IS_DATE_IN_RANGE'>"
+p157
+sS'TH'
+p158
+S"<class 'gluon.html.TH'>"
+p159
+sS'URL'
+p160
+S'<function URL>'
+p161
+sS'__file__'
+p162
+S"'/home/wantsomechocolate/Code/py2manager/applications/py2manager/models/db_tasks.py'"
+p163
+sS'db'
+p164
+S'<DAL uri="sqlite://storage.sqlite">'
+p165
+sS'auth'
+p166
+S'<gluon.tools.Auth object>'
+p167
+sS'P'
+S"<class 'gluon.html.P'>"
+p168
+sS'TFOOT'
+p169
+S"<class 'gluon.html.TFOOT'>"
+p170
+sS'XHTML'
+p171
+S"<class 'gluon.html.XHTML'>"
+p172
+sS'ON'
+p173
+S'True'
+p174
+sS'OL'
+p175
+S"<class 'gluon.html.OL'>"
+p176
+sS'TEXTAREA'
+p177
+S"<class 'gluon.html.TEXTAREA'>"
+p178
+sS'MENU'
+p179
+S"<class 'gluon.html.MENU'>"
+p180
+sS'LOAD'
+p181
+S'<function LOAD>'
+p182
+sS'CODE'
+p183
+S"<class 'gluon.html.CODE'>"
+p184
+sS'HTTP'
+p185
+S"<class 'gluon.http.HTTP'>"
+p186
+sS'HR'
+p187
+S"<class 'gluon.html.HR'>"
+p188
+sS'IS_DATETIME'
+p189
+S"<class 'gluon.validators.IS_DATETIME'>"
+p190
+sS'HEAD'
+p191
+S"<class 'gluon.html.HEAD'>"
+p192
+sS'LABEL'
+p193
+S"<class 'gluon.html.LABEL'>"
+p194
+sS'CLEANUP'
+p195
+S"<class 'gluon.validators.CLEANUP'>"
+p196
+sS'plugins'
+p197
+S'<gluon.tools.PluginManager object>'
+p198
+sS'SELECT'
+p199
+S"<class 'gluon.html.SELECT'>"
+p200
+sS'use_janrain'
+p201
+S'<function use_janrain>'
+p202
+sS'CENTER'
+p203
+S"<class 'gluon.html.CENTER'>"
+p204
+sS'prettydate'
+p205
+S'<function prettydate>'
+p206
+sS'Crud'
+p207
+S"<class 'gluon.tools.Crud'>"
+p208
+sS'Auth'
+p209
+S"<class 'gluon.tools.Auth'>"
+p210
+sS'__builtins__'
+p211
+S"{'ArithmeticError': <type 'exceptions.ArithmeticError'>, 'AssertionError': <type 'exceptions.AssertionError'>, 'AttributeError': <type 'exceptions.AttributeError'>, 'BaseException': <type 'exceptions.BaseException'>, 'BufferError': <type 'exceptions.BufferError'>, 'BytesWarning': <type 'exceptions.BytesWarning'>, 'DeprecationWarning': <type 'exceptions.DeprecationWarning'>, 'EOFError': <type 'exceptions.EOFError'>, 'Ellipsis': Ellipsis, 'EnvironmentError': <type 'exceptions.EnvironmentError'>, ...}"
+p212
+sS'HTML'
+p213
+S"<class 'gluon.html.HTML'>"
+p214
+sS'SQLFORM'
+p215
+S"<class 'gluon.sqlhtml.SQLFORM'>"
+p216
+sS'EM'
+p217
+S"<class 'gluon.html.EM'>"
+p218
+sS'redirect'
+p219
+S'<function redirect>'
+p220
+sS'FIELDSET'
+p221
+S"<class 'gluon.html.FIELDSET'>"
+p222
+sS'IS_EQUAL_TO'
+p223
+S"<class 'gluon.validators.IS_EQUAL_TO'>"
+p224
+sS'embed64'
+p225
+S'<function embed64>'
+p226
+sS'IS_LIST_OF'
+p227
+S"<class 'gluon.validators.IS_LIST_OF'>"
+p228
+sS'__name__'
+p229
+S"'__restricted__'"
+p230
+sS'EMBED'
+p231
+S"<class 'gluon.html.EMBED'>"
+p232
+sS'FORM'
+p233
+S"<class 'gluon.html.FORM'>"
+p234
+sS'H2'
+p235
+S"<class 'gluon.html.H2'>"
+p236
+sS'H3'
+p237
+S"<class 'gluon.html.H3'>"
+p238
+sS'BUTTON'
+p239
+S"<class 'gluon.html.BUTTON'>"
+p240
+sS'H1'
+p241
+S"<class 'gluon.html.H1'>"
+p242
+sS'H6'
+p243
+S"<class 'gluon.html.H6'>"
+p244
+sS'H4'
+p245
+S"<class 'gluon.html.H4'>"
+p246
+sS'H5'
+p247
+S"<class 'gluon.html.H5'>"
+p248
+sS'UL'
+p249
+S"<class 'gluon.html.UL'>"
+p250
+sS'IS_UPPER'
+p251
+S"<class 'gluon.validators.IS_UPPER'>"
+p252
+sS'xmlescape'
+p253
+S'<function xmlescape>'
+p254
+sS'IS_TIME'
+p255
+S"<class 'gluon.validators.IS_TIME'>"
+p256
+sS'OPTION'
+p257
+S"<class 'gluon.html.OPTION'>"
+p258
+sS'TITLE'
+p259
+S"<class 'gluon.html.TITLE'>"
+p260
+sS'CRYPT'
+p261
+S"<class 'gluon.validators.CRYPT'>"
+p262
+sS'IS_EMPTY_OR'
+p263
+S"<class 'gluon.validators.IS_EMPTY_OR'>"
+p264
+sS'MARKMIN'
+p265
+S"<class 'gluon.html.MARKMIN'>"
+p266
+sS'INPUT'
+p267
+S"<class 'gluon.html.INPUT'>"
+p268
+sS'STRONG'
+p269
+S"<class 'gluon.html.STRONG'>"
+p270
+sS'COL'
+p271
+S"<class 'gluon.html.COL'>"
+p272
+sS'service'
+p273
+S'<gluon.tools.Service object>'
+p274
+sS'SCRIPT'
+p275
+S"<class 'gluon.html.SCRIPT'>"
+p276
+sS'TABLE'
+p277
+S"<class 'gluon.html.TABLE'>"
+p278
+sS'IS_IPV4'
+p279
+S"<class 'gluon.validators.IS_IPV4'>"
+p280
+sS'IS_LENGTH'
+p281
+S"<class 'gluon.validators.IS_LENGTH'>"
+p282
+sS'IS_IPV6'
+p283
+S"<class 'gluon.validators.IS_IPV6'>"
+p284
+sS'XML'
+p285
+S"<class 'gluon.html.XML'>"
+p286
+sS'B'
+S"<class 'gluon.html.B'>"
+p287
+sS'IMG'
+p288
+S"<class 'gluon.html.IMG'>"
+p289
+sS'SQLTABLE'
+p290
+S"<class 'gluon.sqlhtml.SQLTABLE'>"
+p291
+sS'IS_MATCH'
+p292
+S"<class 'gluon.validators.IS_MATCH'>"
+p293
+sS'IS_ALPHANUMERIC'
+p294
+S"<class 'gluon.validators.IS_ALPHANUMERIC'>"
+p295
+sS'SPAN'
+p296
+S"<class 'gluon.html.SPAN'>"
+p297
+sS'IS_JSON'
+p298
+S"<class 'gluon.validators.IS_JSON'>"
+p299
+sS'IS_IPADDRESS'
+p300
+S"<class 'gluon.validators.IS_IPADDRESS'>"
+p301
+sS'IS_SLUG'
+p302
+S"<class 'gluon.validators.IS_SLUG'>"
+p303
+sS'BEAUTIFY'
+p304
+S"<class 'gluon.html.BEAUTIFY'>"
+p305
+sS'META'
+p306
+S"<class 'gluon.html.META'>"
+p307
+sS'IS_DATE'
+p308
+S"<class 'gluon.validators.IS_DATE'>"
+p309
+sS'IS_EMAIL'
+p310
+S"<class 'gluon.validators.IS_EMAIL'>"
+p311
+sS'IS_NOT_EMPTY'
+p312
+S"<class 'gluon.validators.IS_NOT_EMPTY'>"
+p313
+sS'IS_FLOAT_IN_RANGE'
+p314
+S"<class 'gluon.validators.IS_FLOAT_IN_RANGE'>"
+p315
+sS'TBODY'
+p316
+S"<class 'gluon.html.TBODY'>"
+p317
+sS'CAT'
+p318
+S"<class 'gluon.html.CAT'>"
+p319
+sS'Field'
+p320
+S"<class 'gluon.dal.Field'>"
+p321
+sS'IS_LIST_OF_EMAILS'
+p322
+S"<class 'gluon.validators.IS_LIST_OF_EMAILS'>"
+p323
+sS'DIV'
+p324
+S"<class 'gluon.html.DIV'>"
+p325
+sS'LEGEND'
+p326
+S"<class 'gluon.html.LEGEND'>"
+p327
+sS'COLGROUP'
+p328
+S"<class 'gluon.html.COLGROUP'>"
+p329
+sS'DAL'
+p330
+S"<class 'gluon.dal.DAL'>"
+p331
+sS'TT'
+p332
+S"<class 'gluon.html.TT'>"
+p333
+sS'TR'
+p334
+S"<class 'gluon.html.TR'>"
+p335
+sS'__package__'
+p336
+S'None'
+p337
+sS'IFRAME'
+p338
+S"<class 'gluon.html.IFRAME'>"
+p339
+sS'TD'
+p340
+S"<class 'gluon.html.TD'>"
+p341
+sS'PluginManager'
+p342
+S"<class 'gluon.tools.PluginManager'>"
+p343
+sS'IS_URL'
+p344
+S"<class 'gluon.validators.IS_URL'>"
+p345
+sS'A'
+S"<class 'gluon.html.A'>"
+p346
+sS'STYLE'
+p347
+S"<class 'gluon.html.STYLE'>"
+p348
+sS'IS_DATETIME_IN_RANGE'
+p349
+S"<class 'gluon.validators.IS_DATETIME_IN_RANGE'>"
+p350
+sS'IS_IMAGE'
+p351
+S"<class 'gluon.validators.IS_IMAGE'>"
+p352
+sS'I'
+S"<class 'gluon.html.I'>"
+p353
+sS'crud'
+p354
+S'<gluon.tools.Crud object>'
+p355
+sS'IS_NOT_IN_DB'
+p356
+S"<class 'gluon.validators.IS_NOT_IN_DB'>"
+p357
+sg115
+S"<Storage {'body': <cStringIO.StringO object at 0...7f5578191b90>, 'view': 'default/buildings.html'}>"
+p358
+sS'THEAD'
+p359
+S"<class 'gluon.html.THEAD'>"
+p360
+sS'ANY_OF'
+p361
+S"<class 'gluon.validators.ANY_OF'>"
+p362
+sS'IS_NULL_OR'
+p363
+S"<class 'gluon.validators.IS_EMPTY_OR'>"
+p364
+sg56
+S"<Storage {'_vars': None, 'function': 'buildings'...olate/Code/py2manager/applications/py2manager/'}>"
+p365
+sS'IS_EXPR'
+p366
+S"<class 'gluon.validators.IS_EXPR'>"
+p367
+sS'IS_IN_SET'
+p368
+S"<class 'gluon.validators.IS_IN_SET'>"
+p369
+sS'IS_UPLOAD_FILENAME'
+p370
+S"<class 'gluon.validators.IS_UPLOAD_FILENAME'>"
+p371
+sS'IS_DECIMAL_IN_RANGE'
+p372
+S"<class 'gluon.validators.IS_DECIMAL_IN_RANGE'>"
+p373
+sS'T'
+S'<gluon.languages.translator object>'
+p374
+sssS'traceback'
+p375
+S'Traceback (most recent call last):\n  File "/home/wantsomechocolate/Code/py2manager/gluon/restricted.py", line 220, in restricted\n    exec ccode in environment\n  File "/home/wantsomechocolate/Code/py2manager/applications/py2manager/models/db_tasks.py", line 67, in <module>\n    Field(\'purchase_date\', \'date\', editable=False),\nTypeError: __init__() got an unexpected keyword argument \'editable\'\n'
+p376
+s.

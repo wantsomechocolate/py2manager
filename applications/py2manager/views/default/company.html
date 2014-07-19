@@ -1,0 +1,29 @@
+{{extend 'layout.html'}}
+
+<h3>Add a new company</h3>
+<br/>
+{{=company_form.custom.begin}}
+<br/>
+<strong>Company name</strong>
+<br/>
+{{=company_form.custom.widget.company_name}}
+<br/>
+<strong>Email</strong>
+<br/>
+{{=company_form.custom.widget.email}}
+<br/>
+<strong>Phone number</strong>
+<br/>
+{{=company_form.custom.widget.phone}}
+<br/>
+<strong>Wobsite</strong>
+<br/>
+{{=company_form.custom.widget.url}}
+<br/>
+{{=company_form.custom.submit}}
+{{=company_form.custom.end}}
+<br/>
+<br/>
+<h2>All companies:</h2>
+<br/>
+{{=grid}}
