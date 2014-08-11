@@ -241,20 +241,19 @@ p56
 g4
 I512
 sg5
-I00
+I01
 sg6
 I2
 sg7
-S'INTEGER REFERENCES company (id) ON DELETE CASCADE'
+S'CHAR(512) NOT NULL UNIQUE'
 p58
 sg9
 I01
 sg10
-S'reference company'
-p59
+g19
 ssS'building_name'
-p60
-(dp61
+p59
+(dp60
 g4
 I512
 sg5
@@ -262,16 +261,15 @@ I00
 sg6
 I3
 sg7
-S'INTEGER REFERENCES buildings (id) ON DELETE CASCADE'
-p62
+S'CHAR(512)'
+p61
 sg9
-I01
+I00
 sg10
-S'reference buildings'
-p63
+g19
 ssS'total_tenant_submeter_area'
-p64
-(dp65
+p62
+(dp63
 g4
 I512
 sg5
@@ -280,14 +278,14 @@ sg6
 I14
 sg7
 S'CHAR(512)'
-p66
+p64
 sg9
 I00
 sg10
 g19
 ssS'total_tenant_direct_usage'
-p67
-(dp68
+p65
+(dp66
 g4
 I512
 sg5
@@ -296,14 +294,14 @@ sg6
 I15
 sg7
 S'CHAR(512)'
-p69
+p67
 sg9
 I00
 sg10
 g19
 ssS'total_base_building_area'
-p70
-(dp71
+p68
+(dp69
 g4
 I512
 sg5
@@ -312,7 +310,7 @@ sg6
 I9
 sg7
 S'CHAR(512)'
-p72
+p70
 sg9
 I00
 sg10

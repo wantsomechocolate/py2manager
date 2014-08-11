@@ -1,7 +1,9 @@
 {{extend 'layout.html'}}
 
-<h2>Welcome to the building edit page</h2>
+<h2>Welcome to the building edit page, {{=auth.user.username}} from {{=auth.user.company}}</h2>
+
 <br/>
 <h3>Edit all projects here</h3>
 <br/>
+
 {{=grid}}

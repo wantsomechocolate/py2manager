@@ -51,7 +51,7 @@ auth.settings.extra_fields['auth_user']=[
     Field('image','upload')
 ]
 
-
+#db.auth_user.company.writable=False
 
 crud, service, plugins = Crud(db), Service(), PluginManager()
 
@@ -93,4 +93,4 @@ use_janrain(auth, filename='private/janrain.key')
 #########################################################################
 
 ## after defining tables, uncomment below to enable auditing
-auth.enable_record_versioning(db)
+## auth.enable_record_versioning(db)

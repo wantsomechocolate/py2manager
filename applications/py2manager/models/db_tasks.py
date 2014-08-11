@@ -1,12 +1,13 @@
 db.define_table('company',
-	Field('company_name', notnull=True, unique=True),
+	Field('company_name'),
 	Field('email'),
-	Field('phone', notnull=True),
+	Field('phone'),
 	Field('url'),
-	format = '%(company_name)s'
 	)
 
-db.auth_user.company.requires=IS_IN_DB(db,'company.company_name')
+#db.auth_user.company.requires=IS_IN_DB(db,'company.company_name', '%(company_name)s')
+#db.auth_user.company.writable=False
+#db.auth_user.company.default="None"
 
 db.company.email.requires=IS_EMAIL()
 db.company.url.requires=IS_EMPTY_OR(IS_URL())
@@ -17,18 +18,25 @@ db.define_table('project',
 	Field('company_name', 'reference company', notnull=True),
 	Field('description', 'text', notnull=True),
 	Field('start_date', 'date', notnull=True),
-	Field('due_date', 'date', notnull=True),
-	Field('completed', 'boolean', notnull=True),
+	Field('due_date','date', notnull=True),
+	Field('completed','boolean', notnull=True),
+	#Field('modified_on'),
+	#Field('modified_by'),
 	format = '%(company_name)s'
 	)
 
-db.project.employee_name.readable = db.project.employee_name.writable = False
+db.project.employee_name.readable = db.project.employee_name.writeable=False
 
-db.project.start_date.requires = IS_DATE(format=T('%m-%d-%Y'),
-	error_message='Must be MM-DD-YYYY!')
+#db.project.employee_name.readable = db.project.employee_name.writable = False
+#db.project.company_name.readable = False
+#db.project.company_name.writable = False
 
-db.project.due_date.requires =IS_DATE(format=T('%m-%d-%Y'),
-	error_message='Must be MM-DD-YYYY!')
+
+# db.project.start_date.requires = IS_DATE(format=T('%m-%d-%Y'),
+# 	error_message='Must be MM-DD-YYYY!')
+
+# db.project.due_date.requires =IS_DATE(format=T('%m-%d-%Y'),
+# 	error_message='Must be MM-DD-YYYY!')
 
 db.define_table('note',
 	Field('post_id', 'reference project', writable=False),
@@ -64,12 +72,18 @@ db.define_table('area_units',
 
 ## - Building Information
 db.define_table('buildings',
+	Field('company_name'),
 	Field('building_name', notnull=True, unique=True),
 	Field('building_area', 'float', notnull=True),
 	Field('purchase_date', 'date'),
 	Field('sell_date','date'),
 	format = '%(building_name)s'
 	)
+
+#db.buildings.company_name.readable = False
+#db.buildings.id.readable=False
+#db.buildings.company_name.writable = False
+#db.project.company_name.default="None"
 
 db.buildings.purchase_date.requires=IS_DATE(format=T('%m-%d-%Y'),
 	error_message='Must by MM-DD-YYYY!')
@@ -79,9 +93,9 @@ db.buildings.sell_date.requires=IS_EMPTY_OR(IS_DATE(format=T('%m-%d-%Y'),
 ##-Electric Table Fields
 
 db.define_table('electric_test',
-	Field('company_name', 'reference company', notnull=True),
+	Field('company_name', unique=True, notnull=True),
 
-	Field('building_name','reference buildings',notnull=True),
+	Field('building_name'),
 	
 	Field('reporting_year', 'integer', notnull=True),
 
@@ -121,5 +135,9 @@ db.electric_test.total_tenant_direct_usage_units.requires=IS_EMPTY_OR(IS_IN_DB(d
 db.electric_test.total_tenant_direct_cost.requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0, 1e100))
 db.electric_test.total_tenant_direct_cost_units.requires=IS_EMPTY_OR(IS_IN_DB(db, 'cost_units.id', '%(name)s'))
 
-#db.electric_test.total_tenant_submeter_usage.requires=(db.electric_test.total_base_building_usage>db.electric_test.total_tenant_submeter_usage)
 
+#db.electric_test.total_tenant_submeter_usage.requires=(db.electric_test.total_base_building_usage>db.electric_test.total_tenant_submeter_usage)
+#db.electric_test.company_name.writable = False
+#db.electric_test.id.readable=False
+#db.electric_test.company_name.default=auth.user.company
+#db.electric_test.building_name.requires=IS_IN_DB(db(db.electric_test.building_name==auth.user.company),'electric_test.building_name')

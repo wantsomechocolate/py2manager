@@ -16,9 +16,18 @@ def index():
     notes=[lambda project: A('Notes',_class='btn',
         _href=URL('default', 'note', args=[project.id]))]
 
-    company=session.user
+    ## This line...
+    ## I wanted to filter the project table to only show projects for the current user's company
+    ## I know web2py has the hasmembership/hasgroup decorators, but I just wanted to try it this 
+    ## way first.
+    ## This takes auth.user.company which is a STRING and then uses that in a query
+    ## to find the ID of the company (A LONG) in the company table
+    ## The reason I need the id is because db.project.company_name is actually
+    ## a long because that's the only way the reference dropdown box would work
+    ## yay!
+    company_record=(db.company(db.company.company_name==auth.user.company)).id
 
-    grid = SQLFORM.grid(db.project.company_name==company,create=False, links=notes,
+    grid = SQLFORM.grid(db.project,create=False, links=notes,
         fields=[db.project.name,db.project.employee_name,
         db.project.company_name, db.project.start_date, 
         db.project.due_date, db.project.completed],
@@ -32,19 +41,33 @@ def index():
 
 @auth.requires_login()
 def buildings():
-    #company=db.auth_user.company
-    grid=SQLFORM.grid(db.buildings, create=True, searchable=True, deletable=False)
+    grid=SQLFORM.grid(db.buildings)
     return locals()
 
+@auth.requires_login()
+def building_data():
+    #company_record=(db.company(db.company.company_name==auth.user.company)).id
+    #company_name=auth.user.company
+    #db.electric_test.building_name.requires=IS_IN_DB(db(db.electric_test.building_name==company_record),'electric_test.building_name','%(company_name)s')
+    #db.electric_test.company_name.default=auth.user.company
+    grid=SQLFORM.grid(db.electric_test)
+    return locals()
 
-#def building(db.auth_user.)
+#def edit():
 
+def add_building():
+    #company_record=(db.company(db.company.company_name==auth.user.company)).id
+    #db.buildings.company_name.default=company_record
+    project_form = SQLFORM(db.buildings).process()
+    return dict(project_form = project_form)
 
 def tester():
     return locals()
 
 @auth.requires_login()
 def add():
+    #company_record=(db.company(db.company.company_name==auth.user.company)).id
+    #db.project.company_name.default=company_record
     project_form = SQLFORM(db.project).process()
     return dict(project_form = project_form)
 
@@ -52,7 +75,7 @@ def add():
 def company():
     company_form = SQLFORM(db.company).process()
     grid = SQLFORM.grid(db.company, create=False, deletable=False,
-        editable=False, maxtextlength=50, orderby=db.company.company_name)
+        editable=False, maxtextlength=50)
     return locals()
 
 @auth.requires_login()
@@ -60,7 +83,7 @@ def employee():
     employee_form = SQLFORM(db.auth_user).process()
     grid = SQLFORM.grid(db.auth_user, create=False,
         fields = [db.auth_user.first_name, db.auth_user.last_name,
-        db.auth_user.email], deletable=False, editable=False, maxtextlength=50)
+        db.auth_user.email, db.auth_user.company], deletable=False, editable=False, maxtextlength=50)
     return locals()
 
 @auth.requires_login()

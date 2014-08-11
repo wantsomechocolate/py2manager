@@ -1,0 +1,29 @@
+{{extend 'layout.html'}}
+
+<h2>Add a new building:</h2>
+<br/>
+{{=project_form.custom.begin}}
+<strong>Building Name</strong>
+<br/>
+{{=project_form.custom.widget.building_name}}
+<br/>
+<!--
+<strong>Company name</strong>
+<br/>
+{{=project_form.custom.widget.company_name}}
+<br/>
+-->
+<strong>Area (SF)</strong>
+<br/>
+{{=project_form.custom.widget.building_area}}
+<br/>
+<strong>Purchase Date</strong>
+<br/>
+{{=project_form.custom.widget.purchase_date}}
+<br/>
+<strong>Sell Date</strong>
+<br/>
+{{=project_form.custom.widget.sell_date}}
+<br/>
+{{=project_form.custom.submit}}
+{{=project_form.custom.end}}
